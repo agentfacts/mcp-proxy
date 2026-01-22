@@ -46,7 +46,7 @@ func (l *Loader) LoadPolicies() (map[string]string, error) {
 			continue
 		}
 
-		content, err := os.ReadFile(file)
+		content, err := os.ReadFile(filepath.Clean(file))
 		if err != nil {
 			return nil, fmt.Errorf("failed to read %s: %w", file, err)
 		}

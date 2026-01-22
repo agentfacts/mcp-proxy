@@ -146,7 +146,7 @@ test_violations_on_capability_deny if {
 
     count(v) > 0
     some msg in v
-    contains(msg, "lacks capability")
+    indexof(msg, "lacks capability") >= 0
 }
 
 # Test: Violations populated on rate limit exceed
@@ -164,7 +164,7 @@ test_violations_on_rate_limit if {
 
     count(v) > 0
     some msg in v
-    contains(msg, "exceeded rate limit")
+    indexof(msg, "exceeded rate limit") >= 0
 }
 
 # Test: Block DID when identity verified

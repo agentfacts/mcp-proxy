@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"reflect"
 	"strconv"
 	"strings"
@@ -14,8 +15,8 @@ import (
 // Load reads and parses the configuration from a YAML file,
 // then applies environment variable overrides.
 func Load(path string) (*Config, error) {
-	// Read configuration file
-	data, err := os.ReadFile(path)
+	// Read configuration file (Clean path to prevent directory traversal)
+	data, err := os.ReadFile(filepath.Clean(path))
 	if err != nil {
 		return nil, fmt.Errorf("reading config file: %w", err)
 	}
