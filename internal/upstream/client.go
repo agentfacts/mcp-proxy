@@ -12,8 +12,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/rs/zerolog/log"
 	"github.com/agentfacts/mcp-proxy/internal/config"
+	"github.com/rs/zerolog/log"
 )
 
 // Client manages connections to the upstream MCP server.

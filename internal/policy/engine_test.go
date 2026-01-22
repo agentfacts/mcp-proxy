@@ -496,10 +496,10 @@ decision = {
 // TestAuditModeVsEnforceMode tests behavior difference between modes.
 func TestAuditModeVsEnforceMode(t *testing.T) {
 	tests := []struct {
-		name           string
-		mode           string
-		allow          bool
-		expectAllowed  bool
+		name          string
+		mode          string
+		allow         bool
+		expectAllowed bool
 	}{
 		{"enforce allow", "enforce", true, true},
 		{"enforce deny", "enforce", false, false},

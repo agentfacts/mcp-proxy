@@ -45,166 +45,180 @@ func applyDefaults(cfg *Config) {
 	if cfg.Version == "" {
 		cfg.Version = "1.0"
 	}
+	applyServerDefaults(&cfg.Server)
+	applyUpstreamDefaults(&cfg.Upstream)
+	applyAgentFactsDefaults(&cfg.AgentFacts)
+	applyPolicyDefaults(&cfg.Policy)
+	applyAuditDefaults(&cfg.Audit)
+	applyMetricsDefaults(&cfg.Metrics)
+	applyHealthDefaults(&cfg.Health)
+	applyLoggingDefaults(&cfg.Logging)
+	applyTLSDefaults(&cfg.TLS)
+}
 
-	// Server defaults
-	if cfg.Server.Listen.Address == "" {
-		cfg.Server.Listen.Address = "0.0.0.0"
+func applyServerDefaults(s *ServerConfig) {
+	if s.Listen.Address == "" {
+		s.Listen.Address = "0.0.0.0"
 	}
-	if cfg.Server.Listen.Port == 0 {
-		cfg.Server.Listen.Port = 3000
+	if s.Listen.Port == 0 {
+		s.Listen.Port = 3000
 	}
-	if cfg.Server.Transport == "" {
-		cfg.Server.Transport = "sse"
+	if s.Transport == "" {
+		s.Transport = "sse"
 	}
-	if cfg.Server.ReadTimeout == 0 {
-		cfg.Server.ReadTimeout = 30 * time.Second
+	if s.ReadTimeout == 0 {
+		s.ReadTimeout = 30 * time.Second
 	}
-	if cfg.Server.WriteTimeout == 0 {
-		cfg.Server.WriteTimeout = 30 * time.Second
+	if s.WriteTimeout == 0 {
+		s.WriteTimeout = 30 * time.Second
 	}
-	if cfg.Server.IdleTimeout == 0 {
-		cfg.Server.IdleTimeout = 120 * time.Second
+	if s.IdleTimeout == 0 {
+		s.IdleTimeout = 120 * time.Second
 	}
-	if cfg.Server.GracefulShutdown == 0 {
-		cfg.Server.GracefulShutdown = 30 * time.Second
+	if s.GracefulShutdown == 0 {
+		s.GracefulShutdown = 30 * time.Second
 	}
-	if cfg.Server.MaxConnections == 0 {
-		cfg.Server.MaxConnections = 1000
+	if s.MaxConnections == 0 {
+		s.MaxConnections = 1000
 	}
-	// Security defaults - enable security headers by default
-	cfg.Server.Security.EnableSecurityHeaders = true
-	// Default CORS: empty means same-origin only (more secure default)
+	s.Security.EnableSecurityHeaders = true
+}
 
-	// Upstream defaults
-	if cfg.Upstream.Transport == "" {
-		cfg.Upstream.Transport = "sse"
+func applyUpstreamDefaults(u *UpstreamConfig) {
+	if u.Transport == "" {
+		u.Transport = "sse"
 	}
-	if cfg.Upstream.Timeout == 0 {
-		cfg.Upstream.Timeout = 30 * time.Second
+	if u.Timeout == 0 {
+		u.Timeout = 30 * time.Second
 	}
-	if cfg.Upstream.ConnectionPool.MaxIdle == 0 {
-		cfg.Upstream.ConnectionPool.MaxIdle = 10
+	if u.ConnectionPool.MaxIdle == 0 {
+		u.ConnectionPool.MaxIdle = 10
 	}
-	if cfg.Upstream.ConnectionPool.MaxOpen == 0 {
-		cfg.Upstream.ConnectionPool.MaxOpen = 100
+	if u.ConnectionPool.MaxOpen == 0 {
+		u.ConnectionPool.MaxOpen = 100
 	}
-	if cfg.Upstream.ConnectionPool.IdleTimeout == 0 {
-		cfg.Upstream.ConnectionPool.IdleTimeout = 90 * time.Second
+	if u.ConnectionPool.IdleTimeout == 0 {
+		u.ConnectionPool.IdleTimeout = 90 * time.Second
 	}
-	if cfg.Upstream.Retry.MaxAttempts == 0 {
-		cfg.Upstream.Retry.MaxAttempts = 3
+	if u.Retry.MaxAttempts == 0 {
+		u.Retry.MaxAttempts = 3
 	}
-	if cfg.Upstream.Retry.InitialDelay == 0 {
-		cfg.Upstream.Retry.InitialDelay = 100 * time.Millisecond
+	if u.Retry.InitialDelay == 0 {
+		u.Retry.InitialDelay = 100 * time.Millisecond
 	}
-	if cfg.Upstream.Retry.MaxDelay == 0 {
-		cfg.Upstream.Retry.MaxDelay = 5 * time.Second
+	if u.Retry.MaxDelay == 0 {
+		u.Retry.MaxDelay = 5 * time.Second
 	}
-	if cfg.Upstream.Retry.Backoff == "" {
-		cfg.Upstream.Retry.Backoff = "exponential"
+	if u.Retry.Backoff == "" {
+		u.Retry.Backoff = "exponential"
 	}
-	if cfg.Upstream.CircuitBreaker.Threshold == 0 {
-		cfg.Upstream.CircuitBreaker.Threshold = 5
+	if u.CircuitBreaker.Threshold == 0 {
+		u.CircuitBreaker.Threshold = 5
 	}
-	if cfg.Upstream.CircuitBreaker.Timeout == 0 {
-		cfg.Upstream.CircuitBreaker.Timeout = 30 * time.Second
+	if u.CircuitBreaker.Timeout == 0 {
+		u.CircuitBreaker.Timeout = 30 * time.Second
 	}
+}
 
-	// AgentFacts defaults
-	if cfg.AgentFacts.Mode == "" {
-		cfg.AgentFacts.Mode = "optional"
+func applyAgentFactsDefaults(af *AgentFactsConfig) {
+	if af.Mode == "" {
+		af.Mode = "optional"
 	}
-	if cfg.AgentFacts.MaxAge == 0 {
-		cfg.AgentFacts.MaxAge = 24 * time.Hour
+	if af.MaxAge == 0 {
+		af.MaxAge = 24 * time.Hour
 	}
-	if cfg.AgentFacts.ClockSkew == 0 {
-		cfg.AgentFacts.ClockSkew = 5 * time.Minute
+	if af.ClockSkew == 0 {
+		af.ClockSkew = 5 * time.Minute
 	}
-	if cfg.AgentFacts.Cache.TTL == 0 {
-		cfg.AgentFacts.Cache.TTL = 5 * time.Minute
+	if af.Cache.TTL == 0 {
+		af.Cache.TTL = 5 * time.Minute
 	}
-	if cfg.AgentFacts.Cache.MaxEntries == 0 {
-		cfg.AgentFacts.Cache.MaxEntries = 1000
+	if af.Cache.MaxEntries == 0 {
+		af.Cache.MaxEntries = 1000
 	}
+}
 
-	// Policy defaults
-	if cfg.Policy.Mode == "" {
-		cfg.Policy.Mode = "enforce"
+func applyPolicyDefaults(p *PolicyConfig) {
+	if p.Mode == "" {
+		p.Mode = "enforce"
 	}
-	if cfg.Policy.PolicyDir == "" {
-		cfg.Policy.PolicyDir = "policies"
+	if p.PolicyDir == "" {
+		p.PolicyDir = "policies"
 	}
-	if cfg.Policy.DataFile == "" {
-		cfg.Policy.DataFile = "config/policy_data.json"
+	if p.DataFile == "" {
+		p.DataFile = "config/policy_data.json"
 	}
-	if cfg.Policy.Cache.TTL == 0 {
-		cfg.Policy.Cache.TTL = 5 * time.Minute
+	if p.Cache.TTL == 0 {
+		p.Cache.TTL = 5 * time.Minute
 	}
-	if cfg.Policy.Cache.MaxEntries == 0 {
-		cfg.Policy.Cache.MaxEntries = 10000
+	if p.Cache.MaxEntries == 0 {
+		p.Cache.MaxEntries = 10000
 	}
-	if cfg.Policy.Evaluation.Timeout == 0 {
-		cfg.Policy.Evaluation.Timeout = 100 * time.Millisecond
+	if p.Evaluation.Timeout == 0 {
+		p.Evaluation.Timeout = 100 * time.Millisecond
 	}
+}
 
-	// Audit defaults
-	if cfg.Audit.DBPath == "" {
-		cfg.Audit.DBPath = "audit.db"
+func applyAuditDefaults(a *AuditConfig) {
+	if a.DBPath == "" {
+		a.DBPath = "audit.db"
 	}
-	if cfg.Audit.BufferSize == 0 {
-		cfg.Audit.BufferSize = 100
+	if a.BufferSize == 0 {
+		a.BufferSize = 100
 	}
-	if cfg.Audit.FlushInterval == 0 {
-		cfg.Audit.FlushInterval = time.Second
+	if a.FlushInterval == 0 {
+		a.FlushInterval = time.Second
 	}
-	if cfg.Audit.RetentionDays == 0 {
-		cfg.Audit.RetentionDays = 30
+	if a.RetentionDays == 0 {
+		a.RetentionDays = 30
 	}
+}
 
-	// Metrics defaults - disabled by default
-	// cfg.Metrics.Enabled defaults to false (zero value)
-	if cfg.Metrics.Address == "" {
-		cfg.Metrics.Address = "0.0.0.0"
+func applyMetricsDefaults(m *MetricsConfig) {
+	if m.Address == "" {
+		m.Address = "0.0.0.0"
 	}
-	if cfg.Metrics.Port == 0 {
-		cfg.Metrics.Port = 9090
+	if m.Port == 0 {
+		m.Port = 9090
 	}
-	if cfg.Metrics.Path == "" {
-		cfg.Metrics.Path = "/metrics"
+	if m.Path == "" {
+		m.Path = "/metrics"
 	}
+}
 
-	// Health defaults - disabled by default
-	// cfg.Health.Enabled defaults to false (zero value)
-	if cfg.Health.Address == "" {
-		cfg.Health.Address = "0.0.0.0"
+func applyHealthDefaults(h *HealthConfig) {
+	if h.Address == "" {
+		h.Address = "0.0.0.0"
 	}
-	if cfg.Health.Port == 0 {
-		cfg.Health.Port = 8080
+	if h.Port == 0 {
+		h.Port = 8080
 	}
-	if cfg.Health.LivenessPath == "" {
-		cfg.Health.LivenessPath = "/health"
+	if h.LivenessPath == "" {
+		h.LivenessPath = "/health"
 	}
-	if cfg.Health.ReadinessPath == "" {
-		cfg.Health.ReadinessPath = "/ready"
+	if h.ReadinessPath == "" {
+		h.ReadinessPath = "/ready"
 	}
+}
 
-	// Logging defaults
-	if cfg.Logging.Level == "" {
-		cfg.Logging.Level = "info"
+func applyLoggingDefaults(l *LoggingConfig) {
+	if l.Level == "" {
+		l.Level = "info"
 	}
-	if cfg.Logging.Format == "" {
-		cfg.Logging.Format = "json"
+	if l.Format == "" {
+		l.Format = "json"
 	}
-	if cfg.Logging.Output == "" {
-		cfg.Logging.Output = "stdout"
+	if l.Output == "" {
+		l.Output = "stdout"
 	}
+}
 
-	// TLS defaults
-	if cfg.TLS.MinVersion == "" {
-		cfg.TLS.MinVersion = "1.2"
+func applyTLSDefaults(t *TLSConfig) {
+	if t.MinVersion == "" {
+		t.MinVersion = "1.2"
 	}
-	if cfg.TLS.ClientAuth == "" {
-		cfg.TLS.ClientAuth = "none"
+	if t.ClientAuth == "" {
+		t.ClientAuth = "none"
 	}
 }
 
@@ -212,27 +226,27 @@ func applyDefaults(cfg *Config) {
 // Environment variables use the format MCP_<SECTION>_<KEY> (uppercase, underscores).
 func applyEnvOverrides(cfg *Config) {
 	envMappings := map[string]func(string){
-		"MCP_SERVER_PORT":         func(v string) { cfg.Server.Listen.Port = parseInt(v, cfg.Server.Listen.Port) },
-		"MCP_SERVER_ADDRESS":      func(v string) { cfg.Server.Listen.Address = v },
-		"MCP_SERVER_TRANSPORT":    func(v string) { cfg.Server.Transport = v },
-		"MCP_UPSTREAM_URL":        func(v string) { cfg.Upstream.URL = v },
-		"MCP_AGENT_ID":            func(v string) { cfg.Agent.ID = v },
-		"MCP_AGENT_NAME":          func(v string) { cfg.Agent.Name = v },
-		"MCP_AGENTFACTS_MODE":     func(v string) { cfg.AgentFacts.Mode = v },
-		"MCP_POLICY_MODE":         func(v string) { cfg.Policy.Mode = v },
-		"MCP_POLICY_RULES_DIR":    func(v string) { cfg.Policy.PolicyDir = v },
-		"MCP_POLICY_DATA_FILE":    func(v string) { cfg.Policy.DataFile = v },
-		"MCP_AUDIT_ENABLED":       func(v string) { cfg.Audit.Enabled = parseBool(v) },
-		"MCP_AUDIT_DB_PATH":       func(v string) { cfg.Audit.DBPath = v },
-		"MCP_METRICS_ENABLED":     func(v string) { cfg.Metrics.Enabled = parseBool(v) },
-		"MCP_METRICS_PORT":        func(v string) { cfg.Metrics.Port = parseInt(v, cfg.Metrics.Port) },
-		"MCP_HEALTH_ENABLED":      func(v string) { cfg.Health.Enabled = parseBool(v) },
-		"MCP_HEALTH_PORT":         func(v string) { cfg.Health.Port = parseInt(v, cfg.Health.Port) },
-		"MCP_LOGGING_LEVEL":       func(v string) { cfg.Logging.Level = v },
-		"MCP_LOGGING_FORMAT":      func(v string) { cfg.Logging.Format = v },
-		"MCP_TLS_ENABLED":         func(v string) { cfg.TLS.Enabled = parseBool(v) },
-		"MCP_TLS_CERT_FILE":       func(v string) { cfg.TLS.CertFile = v },
-		"MCP_TLS_KEY_FILE":        func(v string) { cfg.TLS.KeyFile = v },
+		"MCP_SERVER_PORT":      func(v string) { cfg.Server.Listen.Port = parseInt(v, cfg.Server.Listen.Port) },
+		"MCP_SERVER_ADDRESS":   func(v string) { cfg.Server.Listen.Address = v },
+		"MCP_SERVER_TRANSPORT": func(v string) { cfg.Server.Transport = v },
+		"MCP_UPSTREAM_URL":     func(v string) { cfg.Upstream.URL = v },
+		"MCP_AGENT_ID":         func(v string) { cfg.Agent.ID = v },
+		"MCP_AGENT_NAME":       func(v string) { cfg.Agent.Name = v },
+		"MCP_AGENTFACTS_MODE":  func(v string) { cfg.AgentFacts.Mode = v },
+		"MCP_POLICY_MODE":      func(v string) { cfg.Policy.Mode = v },
+		"MCP_POLICY_RULES_DIR": func(v string) { cfg.Policy.PolicyDir = v },
+		"MCP_POLICY_DATA_FILE": func(v string) { cfg.Policy.DataFile = v },
+		"MCP_AUDIT_ENABLED":    func(v string) { cfg.Audit.Enabled = parseBool(v) },
+		"MCP_AUDIT_DB_PATH":    func(v string) { cfg.Audit.DBPath = v },
+		"MCP_METRICS_ENABLED":  func(v string) { cfg.Metrics.Enabled = parseBool(v) },
+		"MCP_METRICS_PORT":     func(v string) { cfg.Metrics.Port = parseInt(v, cfg.Metrics.Port) },
+		"MCP_HEALTH_ENABLED":   func(v string) { cfg.Health.Enabled = parseBool(v) },
+		"MCP_HEALTH_PORT":      func(v string) { cfg.Health.Port = parseInt(v, cfg.Health.Port) },
+		"MCP_LOGGING_LEVEL":    func(v string) { cfg.Logging.Level = v },
+		"MCP_LOGGING_FORMAT":   func(v string) { cfg.Logging.Format = v },
+		"MCP_TLS_ENABLED":      func(v string) { cfg.TLS.Enabled = parseBool(v) },
+		"MCP_TLS_CERT_FILE":    func(v string) { cfg.TLS.CertFile = v },
+		"MCP_TLS_KEY_FILE":     func(v string) { cfg.TLS.KeyFile = v },
 	}
 
 	for env, setter := range envMappings {
@@ -318,29 +332,29 @@ func (c *Config) MaskSensitive() *Config {
 // GetEnvMapping returns a map of configuration paths to environment variable names.
 func GetEnvMapping() map[string]string {
 	return map[string]string{
-		"server.port":            "MCP_SERVER_PORT",
-		"server.address":         "MCP_SERVER_ADDRESS",
-		"server.transport":       "MCP_SERVER_TRANSPORT",
-		"upstream.url":           "MCP_UPSTREAM_URL",
-		"agent.id":               "MCP_AGENT_ID",
-		"agent.name":             "MCP_AGENT_NAME",
-		"agent.capabilities":     "MCP_AGENT_CAPABILITIES",
-		"agentfacts.mode":        "MCP_AGENTFACTS_MODE",
+		"server.port":             "MCP_SERVER_PORT",
+		"server.address":          "MCP_SERVER_ADDRESS",
+		"server.transport":        "MCP_SERVER_TRANSPORT",
+		"upstream.url":            "MCP_UPSTREAM_URL",
+		"agent.id":                "MCP_AGENT_ID",
+		"agent.name":              "MCP_AGENT_NAME",
+		"agent.capabilities":      "MCP_AGENT_CAPABILITIES",
+		"agentfacts.mode":         "MCP_AGENTFACTS_MODE",
 		"agentfacts.allowed_dids": "MCP_AGENTFACTS_ALLOWED_DIDS",
-		"policy.mode":            "MCP_POLICY_MODE",
-		"policy.rules_dir":       "MCP_POLICY_RULES_DIR",
-		"policy.data_file":       "MCP_POLICY_DATA_FILE",
-		"audit.enabled":          "MCP_AUDIT_ENABLED",
-		"audit.db_path":          "MCP_AUDIT_DB_PATH",
-		"metrics.enabled":        "MCP_METRICS_ENABLED",
-		"metrics.port":           "MCP_METRICS_PORT",
-		"health.enabled":         "MCP_HEALTH_ENABLED",
-		"health.port":            "MCP_HEALTH_PORT",
-		"logging.level":          "MCP_LOGGING_LEVEL",
-		"logging.format":         "MCP_LOGGING_FORMAT",
-		"tls.enabled":            "MCP_TLS_ENABLED",
-		"tls.cert_file":          "MCP_TLS_CERT_FILE",
-		"tls.key_file":           "MCP_TLS_KEY_FILE",
+		"policy.mode":             "MCP_POLICY_MODE",
+		"policy.rules_dir":        "MCP_POLICY_RULES_DIR",
+		"policy.data_file":        "MCP_POLICY_DATA_FILE",
+		"audit.enabled":           "MCP_AUDIT_ENABLED",
+		"audit.db_path":           "MCP_AUDIT_DB_PATH",
+		"metrics.enabled":         "MCP_METRICS_ENABLED",
+		"metrics.port":            "MCP_METRICS_PORT",
+		"health.enabled":          "MCP_HEALTH_ENABLED",
+		"health.port":             "MCP_HEALTH_PORT",
+		"logging.level":           "MCP_LOGGING_LEVEL",
+		"logging.format":          "MCP_LOGGING_FORMAT",
+		"tls.enabled":             "MCP_TLS_ENABLED",
+		"tls.cert_file":           "MCP_TLS_CERT_FILE",
+		"tls.key_file":            "MCP_TLS_KEY_FILE",
 	}
 }
 

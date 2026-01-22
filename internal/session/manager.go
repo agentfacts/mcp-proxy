@@ -14,10 +14,9 @@ type Manager struct {
 	sessions sync.Map // map[string]*Session
 
 	// Configuration
-	sessionTTL     time.Duration
-	cleanupTicker  *time.Ticker
-	maxSessions    int
-	sessionCounter int64
+	sessionTTL    time.Duration
+	cleanupTicker *time.Ticker
+	maxSessions   int
 
 	// Metrics
 	mu           sync.RWMutex

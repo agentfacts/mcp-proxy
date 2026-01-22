@@ -3,7 +3,7 @@
 
 package mcp.policy
 
-import future.keywords.if
+import rego.v1
 
 # Test: Allow when agent has exact capability match
 test_allow_exact_capability_match if {

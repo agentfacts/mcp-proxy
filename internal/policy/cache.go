@@ -3,7 +3,6 @@ package policy
 import (
 	"crypto/sha256"
 	"encoding/hex"
-	"encoding/json"
 	"sort"
 	"strings"
 	"sync"
@@ -141,12 +140,12 @@ func (c *DecisionCache) Stats() CacheStats {
 	}
 
 	return CacheStats{
-		L1Hits:   c.l1Hits,
-		L2Hits:   c.l2Hits,
-		Misses:   c.misses,
-		Entries:  entries,
-		HitRate:  hitRate,
-		Evicted:  c.evicted,
+		L1Hits:  c.l1Hits,
+		L2Hits:  c.l2Hits,
+		Misses:  c.misses,
+		Entries: entries,
+		HitRate: hitRate,
+		Evicted: c.evicted,
 	}
 }
 
@@ -213,12 +212,5 @@ func (c *DecisionCache) cleanup() {
 // hashString returns a SHA256 hash of the input string.
 func hashString(s string) string {
 	h := sha256.Sum256([]byte(s))
-	return hex.EncodeToString(h[:])
-}
-
-// hashInput returns a hash of the full policy input for exact matching.
-func hashInput(input *PolicyInput) string {
-	data, _ := json.Marshal(input)
-	h := sha256.Sum256(data)
 	return hex.EncodeToString(h[:])
 }

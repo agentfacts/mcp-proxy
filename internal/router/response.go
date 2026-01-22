@@ -15,32 +15,6 @@ var bufferPool = sync.Pool{
 	},
 }
 
-// responsePool provides reusable Response objects.
-var responsePool = sync.Pool{
-	New: func() interface{} {
-		return &Response{JSONRPC: "2.0"}
-	},
-}
-
-// getResponse retrieves a Response from the pool and initializes it.
-func getResponse() *Response {
-	resp := responsePool.Get().(*Response)
-	resp.JSONRPC = "2.0"
-	resp.ID = nil
-	resp.Result = nil
-	resp.Error = nil
-	return resp
-}
-
-// putResponse returns a Response to the pool.
-// Note: This should only be called after the response has been serialized.
-func putResponse(resp *Response) {
-	resp.ID = nil
-	resp.Result = nil
-	resp.Error = nil
-	responsePool.Put(resp)
-}
-
 // getBuffer retrieves a buffer from the pool.
 func getBuffer() *bytes.Buffer {
 	buf := bufferPool.Get().(*bytes.Buffer)

@@ -13,9 +13,9 @@ type Metrics struct {
 	RequestsInFlight prometheus.Gauge
 
 	// Session metrics
-	ActiveSessions   prometheus.Gauge
-	SessionsTotal    *prometheus.CounterVec
-	SessionDuration  prometheus.Histogram
+	ActiveSessions  prometheus.Gauge
+	SessionsTotal   *prometheus.CounterVec
+	SessionDuration prometheus.Histogram
 
 	// Policy metrics
 	PolicyDecisions   *prometheus.CounterVec

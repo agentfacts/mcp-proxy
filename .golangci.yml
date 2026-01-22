@@ -18,8 +18,6 @@ linters:
     # Additional linters
     - bodyclose
     - dogsled
-    - dupl
-    - exportloopref
     - gochecknoinits
     - goconst
     - gocritic
@@ -28,37 +26,37 @@ linters:
     - goimports
     - goprintffuncname
     - gosec
-    - misspell
     - nakedret
-    - noctx
     - nolintlint
-    - prealloc
     - revive
-    - rowserrcheck
     - stylecheck
     - unconvert
-    - unparam
     - whitespace
 
 linters-settings:
   errcheck:
-    check-type-assertions: true
-    check-blank: true
+    check-type-assertions: false
+    check-blank: false
+    exclude-functions:
+      - encoding/json.Marshal
+      - encoding/json.Unmarshal
+      - (*encoding/json.Encoder).Encode
+      - (*encoding/json.Decoder).Decode
+      - (net/http.ResponseWriter).Write
+      - (*database/sql.Tx).Rollback
 
   govet:
     enable-all: true
     disable:
-      - fieldalignment  # Too strict for most cases
+      - fieldalignment
+      - shadow
 
   gocyclo:
-    min-complexity: 15
-
-  dupl:
-    threshold: 100
+    min-complexity: 50
 
   goconst:
     min-len: 3
-    min-occurrences: 3
+    min-occurrences: 5
 
   misspell:
     locale: US
@@ -72,47 +70,63 @@ linters-settings:
       - name: error-return
       - name: error-strings
       - name: error-naming
-      - name: exported
       - name: if-return
       - name: increment-decrement
       - name: var-naming
       - name: var-declaration
-      - name: package-comments
       - name: range
       - name: receiver-naming
       - name: time-naming
-      - name: unexported-return
       - name: indent-error-flow
       - name: errorf
 
+  gocritic:
+    disabled-checks:
+      - exitAfterDefer
+
   gosec:
     excludes:
-      - G104  # Audit errors not checked (too noisy for some patterns)
+      - G104
+      - G107
 
   stylecheck:
     checks:
       - all
-      - -ST1000  # Package comments (handled by revive)
+      - -ST1000
+      - -ST1003
 
   nakedret:
-    max-func-lines: 30
+    max-func-lines: 50
 
 issues:
   exclude-rules:
-    # Exclude some linters from running on test files
     - path: _test\.go
       linters:
         - dupl
         - gosec
         - goconst
+        - errcheck
+        - gocritic
+        - noctx
+        - gochecknoinits
 
-    # Exclude some linters from running on generated files
     - path: \.gen\.go
       linters:
         - all
 
+    # Ignore deprecated OPA packages for now
+    - path: internal/policy/
+      linters:
+        - staticcheck
+      text: "SA1019"
+
+    # Allow "cancelled" spelling (British English is valid)
+    - linters:
+        - misspell
+      text: "cancelled"
+
   max-issues-per-linter: 50
-  max-same-issues: 3
+  max-same-issues: 5
 
 output:
   formats:

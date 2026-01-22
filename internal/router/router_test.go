@@ -170,9 +170,9 @@ func TestParseMalformedMessages(t *testing.T) {
 // TestToolsCallParsing tests parsing tools/call method parameters.
 func TestToolsCallParsing(t *testing.T) {
 	tests := []struct {
-		name    string
-		message string
-		wantErr bool
+		name     string
+		message  string
+		wantErr  bool
 		wantTool string
 	}{
 		{
@@ -618,7 +618,7 @@ func TestBuildErrorResponse(t *testing.T) {
 // TestMethodRegistry tests the method configuration registry.
 func TestMethodRegistry(t *testing.T) {
 	tests := []struct {
-		method         string
+		method          string
 		expectedHandler HandlerType
 		expectedLog     LogLevel
 	}{

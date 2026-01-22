@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	_ "github.com/mattn/go-sqlite3"
+	_ "github.com/mattn/go-sqlite3" // SQLite driver
 	"github.com/rs/zerolog/log"
 )
 

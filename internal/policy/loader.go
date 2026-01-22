@@ -123,11 +123,7 @@ func (l *Loader) ValidatePolicies(ctx context.Context) error {
 
 	// Try to compile with a temporary engine
 	engine := NewEngine(EngineConfig{Enabled: true})
-	if err := engine.LoadPolicies(ctx, modules); err != nil {
-		return err
-	}
-
-	return nil
+	return engine.LoadPolicies(ctx, modules)
 }
 
 // PolicyDataFromStruct converts a PolicyData struct to a map for OPA.

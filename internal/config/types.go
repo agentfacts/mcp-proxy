@@ -165,9 +165,9 @@ type LoggingConfig struct {
 // FileConfig defines log file settings.
 type FileConfig struct {
 	Path       string `yaml:"path"`
-	MaxSize    int    `yaml:"max_size"`    // MB
+	MaxSize    int    `yaml:"max_size"` // MB
 	MaxBackups int    `yaml:"max_backups"`
-	MaxAge     int    `yaml:"max_age"`     // days
+	MaxAge     int    `yaml:"max_age"` // days
 }
 
 // TLSConfig defines TLS settings.

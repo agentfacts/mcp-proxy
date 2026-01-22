@@ -11,8 +11,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/log"
 	"github.com/agentfacts/mcp-proxy/internal/audit"
 	"github.com/agentfacts/mcp-proxy/internal/config"
 	"github.com/agentfacts/mcp-proxy/internal/observability"
@@ -21,6 +19,8 @@ import (
 	"github.com/agentfacts/mcp-proxy/internal/session"
 	"github.com/agentfacts/mcp-proxy/internal/transport/sse"
 	"github.com/agentfacts/mcp-proxy/internal/upstream"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 )
 
 var (
@@ -41,9 +41,9 @@ type Application struct {
 	auditWriter    *audit.Writer
 
 	// Observability
-	metrics     *observability.Metrics
-	health      *observability.Health
-	obsServer   *observability.Server
+	metrics   *observability.Metrics
+	health    *observability.Health
+	obsServer *observability.Server
 }
 
 func main() {
@@ -216,7 +216,7 @@ func newApplication(cfg *config.Config) (*Application, error) {
 
 			record := audit.NewRecordBuilder().
 				WithRequest(reqCtx.RequestID, sess.ID).
-				WithTiming(float64(latency.Microseconds()) / 1000.0).
+				WithTiming(float64(latency.Microseconds())/1000.0).
 				WithAgent(sess.AgentID, sess.AgentName, string(capsJSON)).
 				WithMethod(reqCtx.Method, reqCtx.Tool, reqCtx.ResourceURI, argsJSON).
 				WithIdentity(sess.IdentityVerified, sess.DID).
@@ -245,7 +245,7 @@ func newApplication(cfg *config.Config) (*Application, error) {
 		input := policy.NewInputBuilder().
 			WithAgent(sess.AgentID, sess.AgentID, sess.Capabilities).
 			WithRequest(reqCtx.Method, reqCtx.Tool, reqCtx.Arguments).
-			WithSession(sess.ID, int(sess.RequestCount), sess.CreatedAt).
+			WithSession(sess.ID, sess.RequestCount, sess.CreatedAt).
 			WithEnvironment(sess.SourceIP, cfg.Policy.Environment, cfg.Server.Listen.Address).
 			Build()
 

@@ -39,7 +39,7 @@ type Engine struct {
 
 // EngineConfig holds configuration for the policy engine.
 type EngineConfig struct {
-	Mode        string      // "enforce" or "audit"
+	Mode        string // "enforce" or "audit"
 	Enabled     bool
 	CacheConfig CacheConfig
 }

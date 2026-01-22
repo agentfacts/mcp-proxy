@@ -19,11 +19,11 @@ type ServerConfig struct {
 	MetricsPath    string
 
 	// Health configuration
-	HealthEnabled  bool
-	HealthAddress  string
-	HealthPort     int
-	LivenessPath   string
-	ReadinessPath  string
+	HealthEnabled bool
+	HealthAddress string
+	HealthPort    int
+	LivenessPath  string
+	ReadinessPath string
 }
 
 // Server serves metrics and health check endpoints.

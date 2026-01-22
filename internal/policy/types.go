@@ -7,10 +7,10 @@ import (
 // PolicyInput is the input structure sent to OPA for policy evaluation.
 // This matches the schema defined in the spec section 4.2.
 type PolicyInput struct {
-	Agent    AgentContext      `json:"agent"`
-	Request  RequestContext    `json:"request"`
-	Session  SessionContext    `json:"session"`
-	Identity IdentityContext   `json:"identity"`
+	Agent    AgentContext       `json:"agent"`
+	Request  RequestContext     `json:"request"`
+	Session  SessionContext     `json:"session"`
+	Identity IdentityContext    `json:"identity"`
 	Context  EnvironmentContext `json:"context"`
 }
 
@@ -88,12 +88,12 @@ type PolicyData struct {
 
 // EvaluationResult contains the full result of a policy evaluation.
 type EvaluationResult struct {
-	Decision    *PolicyDecision
-	Input       *PolicyInput
-	EvalTime    time.Duration
-	CacheHit    bool
-	CacheTier   string // "L1", "L2", or ""
-	PolicyMode  string // "audit" or "enforce"
+	Decision   *PolicyDecision
+	Input      *PolicyInput
+	EvalTime   time.Duration
+	CacheHit   bool
+	CacheTier  string // "L1", "L2", or ""
+	PolicyMode string // "audit" or "enforce"
 }
 
 // InputBuilder helps construct PolicyInput from various sources.

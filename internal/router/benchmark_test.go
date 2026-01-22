@@ -5,9 +5,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/agentfacts/mcp-proxy/internal/session"
 	json "github.com/goccy/go-json"
 	"github.com/rs/zerolog"
-	"github.com/agentfacts/mcp-proxy/internal/session"
 )
 
 func init() {

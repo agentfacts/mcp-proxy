@@ -9,9 +9,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/rs/zerolog/log"
 	"github.com/agentfacts/mcp-proxy/internal/config"
 	"github.com/agentfacts/mcp-proxy/internal/session"
+	"github.com/rs/zerolog/log"
 )
 
 // MessageHandler is the callback for processing incoming MCP messages.

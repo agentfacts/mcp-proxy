@@ -90,14 +90,14 @@ type Error struct {
 
 // PolicyViolationData contains details about a policy violation.
 type PolicyViolationData struct {
-	RequestID         string   `json:"request_id"`
-	AgentID           string   `json:"agent_id"`
-	Tool              string   `json:"tool,omitempty"`
-	RequiredCapability string  `json:"required_capability,omitempty"`
-	AgentCapabilities []string `json:"agent_capabilities,omitempty"`
-	Violations        []string `json:"violations"`
-	PolicyMode        string   `json:"policy_mode"`
-	Timestamp         string   `json:"timestamp"`
+	RequestID          string   `json:"request_id"`
+	AgentID            string   `json:"agent_id"`
+	Tool               string   `json:"tool,omitempty"`
+	RequiredCapability string   `json:"required_capability,omitempty"`
+	AgentCapabilities  []string `json:"agent_capabilities,omitempty"`
+	Violations         []string `json:"violations"`
+	PolicyMode         string   `json:"policy_mode"`
+	Timestamp          string   `json:"timestamp"`
 }
 
 // ToolCallParams represents parameters for tools/call method.
