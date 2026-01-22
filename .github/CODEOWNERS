@@ -1,0 +1,19 @@
+# CODEOWNERS file
+# These owners will be requested for review when someone opens a pull request.
+
+# Default owners for everything in the repo
+*       @agentfacts/maintainers
+
+# Specific ownership
+/internal/policy/     @agentfacts/maintainers
+/internal/audit/      @agentfacts/maintainers
+/policies/            @agentfacts/maintainers
+
+# Documentation
+*.md                  @agentfacts/maintainers
+/docs/                @agentfacts/maintainers
+
+# CI/CD
+/.github/             @agentfacts/maintainers
+/Dockerfile           @agentfacts/maintainers
+/docker-compose.yml   @agentfacts/maintainers

@@ -1,0 +1,44 @@
+{
+  "tool_capabilities": {
+    "customer_lookup": "read:customers",
+    "customer_update": "write:customers",
+    "customer_delete": "admin:customers",
+    "ticket_create": "write:tickets",
+    "ticket_read": "read:tickets",
+    "ticket_update": "write:tickets",
+    "payment_history": "read:payments",
+    "payment_refund": "write:payments",
+    "analytics_query": "read:analytics",
+    "admin_panel": "admin:*"
+  },
+  "rate_limits": {
+    "support-agent-prod": 500,
+    "analytics-agent-prod": 10000,
+    "admin-agent-prod": 100,
+    "default": 1000
+  },
+  "blocked_tools": [
+    "database_drop",
+    "user_delete_all",
+    "system_shutdown",
+    "execute_command",
+    "shell_exec",
+    "system_admin",
+    "rm_rf"
+  ],
+  "blocked_agents": [],
+  "blocked_dids": [],
+  "allowed_dids": [],
+  "trusted_publishers": [],
+  "identity_required_tools": [
+    "payment_refund",
+    "customer_delete",
+    "admin_panel"
+  ],
+  "pii_tools": [
+    "customer_lookup",
+    "customer_update",
+    "payment_history"
+  ],
+  "blocked_models_for_pii": []
+}

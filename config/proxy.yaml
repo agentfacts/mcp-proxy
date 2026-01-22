@@ -1,0 +1,112 @@
+version: "1.0"
+
+# Server configuration
+server:
+  listen:
+    address: "0.0.0.0"
+    port: 3000
+  transport: "sse"  # sse | stdio | http
+  read_timeout: 30s
+  write_timeout: 30s
+  idle_timeout: 120s
+  graceful_shutdown: 30s
+  max_connections: 1000
+
+# Upstream MCP server
+upstream:
+  url: "http://localhost:8080"
+  transport: "sse"
+  timeout: 30s
+  connection_pool:
+    max_idle: 10
+    max_open: 100
+    idle_timeout: 90s
+  retry:
+    enabled: true
+    max_attempts: 3
+    initial_delay: 100ms
+    max_delay: 5s
+    backoff: "exponential"
+  circuit_breaker:
+    enabled: true
+    threshold: 5
+    timeout: 30s
+
+# Default agent identity (used when AgentFacts not provided)
+agent:
+  id: "default-agent"
+  name: "Default Agent"
+  capabilities:
+    - "read:*"
+  model: "unknown"
+  tags:
+    - "default"
+
+# AgentFacts verification
+agentfacts:
+  mode: "optional"  # disabled | optional | required
+  max_age: 24h
+  clock_skew: 5m
+  allowed_dids: []
+  verify_log_proof: false
+  cache:
+    enabled: true
+    ttl: 5m
+    max_entries: 1000
+
+# Policy engine (OPA)
+policy:
+  enabled: true
+  mode: "enforce"  # audit | enforce
+  policy_dir: "policies"
+  data_file: "config/policy_data.json"
+  watch_for_changes: true
+  environment: "development"  # development | staging | production
+  cache:
+    enabled: true
+    ttl: 5m
+    max_entries: 10000
+  evaluation:
+    timeout: 100ms
+    strict_builtin_errors: true
+
+# Audit logging (SQLite)
+audit:
+  enabled: true
+  db_path: "audit.db"        # SQLite database path
+  buffer_size: 100           # Max records to buffer before flush
+  flush_interval: 1s         # How often to flush to disk
+  retention_days: 30         # Days to keep records (0 = forever)
+  capture:
+    request_arguments: true  # Log tool arguments
+    response_summary: true   # Log response summary
+
+# Prometheus metrics (disabled by default)
+metrics:
+  enabled: false
+  address: "0.0.0.0"
+  port: 9090
+  path: "/metrics"
+
+# Health checks (disabled by default)
+health:
+  enabled: false
+  address: "0.0.0.0"
+  port: 8080
+  liveness_path: "/health"
+  readiness_path: "/ready"
+
+# Logging
+logging:
+  level: "info"     # debug | info | warn | error
+  format: "json"    # json | text
+  output: "stdout"
+
+# TLS (disabled by default for development)
+tls:
+  enabled: false
+  cert_file: ""
+  key_file: ""
+  ca_file: ""
+  min_version: "1.2"
+  client_auth: "none"

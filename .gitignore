@@ -1,0 +1,91 @@
+# Binaries
+bin/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+/proxy
+/mcp-proxy
+/soth-proxy
+*.test
+
+# Test binary
+*.test
+
+# Output of go coverage tool
+*.out
+coverage.html
+
+# Dependency directories
+vendor/
+
+# Go workspace file
+go.work
+
+# IDE
+.idea/
+.vscode/
+.claude/
+
+# Internal documentation (not for public)
+internal-docs/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment files
+.env
+.env.local
+.env.*.local
+*.env
+
+# Logs
+*.log
+logs/
+
+# Local config overrides
+config/local.yaml
+config/*.local.yaml
+
+# Secrets (never commit these)
+*.pem
+*.key
+*.crt
+secrets/
+
+# Docker
+.docker/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Build artifacts
+dist/
+
+# Air (hot reload)
+.air.toml
+tmp/
+
+# Test databases
+*.db
+*.sqlite
+
+# Profiling
+*.prof
+*.pprof
+
+# Generated files
+*.gen.go
+
+# Playwright
+playwright-report/
+test-results/
+playwright/.cache/
+.playwright-mcp/

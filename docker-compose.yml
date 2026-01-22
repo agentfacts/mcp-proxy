@@ -1,0 +1,116 @@
+version: "3.8"
+
+services:
+  # PostgreSQL for audit logs
+  postgres:
+    image: postgres:15-alpine
+    container_name: mcp-postgres
+    environment:
+      POSTGRES_USER: mcp
+      POSTGRES_PASSWORD: mcp
+      POSTGRES_DB: mcp
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mcp -d mcp"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - mcp-network
+
+  # Redis for distributed caching (optional, for multi-instance deployments)
+  redis:
+    image: redis:7-alpine
+    container_name: mcp-redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - mcp-network
+
+  # Mock MCP server for testing
+  mock-mcp:
+    image: mockserver/mockserver:latest
+    container_name: mcp-mock-mcp
+    ports:
+      - "8080:1080"
+    environment:
+      MOCKSERVER_LOG_LEVEL: INFO
+    networks:
+      - mcp-network
+
+  # MCP Proxy (for running in Docker)
+  proxy:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mcp-proxy
+    ports:
+      - "3000:3000"   # MCP proxy
+      - "8081:8080"   # Health endpoints
+      - "9090:9090"   # Metrics
+    environment:
+      MCP_UPSTREAM_URL: "http://mock-mcp:1080"
+      MCP_AUDIT_POSTGRES_DSN: "postgres://mcp:mcp@postgres:5432/mcp?sslmode=disable"
+      MCP_LOGGING_LEVEL: "debug"
+      MCP_LOGGING_FORMAT: "text"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./config:/etc/mcp:ro
+      - ./policies:/etc/mcp/policies:ro
+    networks:
+      - mcp-network
+    profiles:
+      - full  # Only start with: docker-compose --profile full up
+
+  # Prometheus for metrics collection
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: mcp-prometheus
+    ports:
+      - "9091:9090"
+    volumes:
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    networks:
+      - mcp-network
+    profiles:
+      - monitoring
+
+  # Grafana for dashboards
+  grafana:
+    image: grafana/grafana:latest
+    container_name: mcp-grafana
+    ports:
+      - "3001:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+    networks:
+      - mcp-network
+    profiles:
+      - monitoring
+
+volumes:
+  postgres_data:
+  grafana_data:
+
+networks:
+  mcp-network:
+    driver: bridge
