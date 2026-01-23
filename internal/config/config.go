@@ -146,6 +146,9 @@ func applyPolicyDefaults(p *PolicyConfig) {
 	if p.PolicyDir == "" {
 		p.PolicyDir = "policies"
 	}
+	if p.JSONPolicyDir == "" {
+		p.JSONPolicyDir = filepath.Join(p.PolicyDir, "json")
+	}
 	if p.DataFile == "" {
 		p.DataFile = "config/policy_data.json"
 	}

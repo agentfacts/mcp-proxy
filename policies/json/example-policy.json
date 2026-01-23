@@ -1,0 +1,70 @@
+{
+  "$schema": "https://soth.dev/schemas/policy-v1.json",
+  "version": "1.0",
+  "name": "example-security-policy",
+  "description": "Example JSON policy demonstrating all rule types",
+  "defaults": {
+    "action": "deny",
+    "rate_limit": 1000
+  },
+  "rules": [
+    {
+      "id": "block-dangerous-tools",
+      "type": "blocklist",
+      "priority": 1000,
+      "conditions": {
+        "match_type": "tool",
+        "values": ["database_drop", "shell_exec", "system_shutdown", "rm_rf"]
+      },
+      "action": "deny",
+      "message": "Tool is blocked for security reasons"
+    },
+    {
+      "id": "require-customer-read",
+      "type": "capability",
+      "priority": 100,
+      "conditions": {
+        "tool": "customer_lookup",
+        "requires_capability": "read:customers"
+      },
+      "action": "deny",
+      "message": "Agent requires 'read:customers' capability"
+    },
+    {
+      "id": "require-customer-write",
+      "type": "capability",
+      "priority": 100,
+      "conditions": {
+        "tool": "customer_update",
+        "requires_capability": "write:customers"
+      },
+      "action": "deny",
+      "message": "Agent requires 'write:customers' capability"
+    },
+    {
+      "id": "support-agent-rate-limit",
+      "type": "rate_limit",
+      "priority": 50,
+      "conditions": {
+        "agent_pattern": "support-.*",
+        "limit": 500,
+        "window": "session"
+      },
+      "action": "deny",
+      "message": "Support agent rate limit exceeded (500 per session)"
+    },
+    {
+      "id": "pii-requires-identity",
+      "type": "custom",
+      "priority": 200,
+      "conditions": {
+        "all": [
+          {"tool_in": ["customer_lookup", "payment_history", "customer_update"]},
+          {"not": {"identity.verified": true}}
+        ]
+      },
+      "action": "deny",
+      "message": "PII-accessing tools require verified agent identity"
+    }
+  ]
+}

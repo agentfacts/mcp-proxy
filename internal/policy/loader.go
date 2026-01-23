@@ -8,25 +8,80 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/agentfacts/mcp-proxy/internal/policy/compiler"
 	"github.com/rs/zerolog/log"
 )
 
 // Loader handles loading policy files and data.
 type Loader struct {
-	policyDir string
-	dataFile  string
+	policyDir     string
+	dataFile      string
+	jsonPolicyDir string
+	compiler      *compiler.Compiler
 }
 
-// NewLoader creates a new policy loader.
-func NewLoader(policyDir, dataFile string) *Loader {
-	return &Loader{
-		policyDir: policyDir,
-		dataFile:  dataFile,
+// LoaderOption configures the loader.
+type LoaderOption func(*Loader)
+
+// WithJSONPolicyDir sets the JSON policy directory.
+func WithJSONPolicyDir(dir string) LoaderOption {
+	return func(l *Loader) {
+		l.jsonPolicyDir = dir
 	}
 }
 
-// LoadPolicies loads all .rego files from the policy directory.
+// NewLoader creates a new policy loader.
+func NewLoader(policyDir, dataFile string, opts ...LoaderOption) *Loader {
+	l := &Loader{
+		policyDir:     policyDir,
+		dataFile:      dataFile,
+		jsonPolicyDir: filepath.Join(policyDir, "json"),
+		compiler:      compiler.NewCompiler(),
+	}
+
+	for _, opt := range opts {
+		opt(l)
+	}
+
+	return l
+}
+
+// LoadPolicies loads all policy files (.rego and compiled .json) from the policy directory.
 func (l *Loader) LoadPolicies() (map[string]string, error) {
+	modules := make(map[string]string)
+
+	// Load native Rego files first
+	regoModules, err := l.loadRegoFiles()
+	if err != nil {
+		return nil, err
+	}
+	for k, v := range regoModules {
+		modules[k] = v
+	}
+
+	// Load and compile JSON policies
+	jsonModules, err := l.loadJSONPolicies()
+	if err != nil {
+		// Log warning but don't fail if JSON policies can't be loaded
+		log.Warn().Err(err).Msg("Failed to load JSON policies, continuing with Rego only")
+	} else {
+		for k, v := range jsonModules {
+			// Check for conflicts - Rego takes precedence
+			if _, exists := modules[k]; exists {
+				log.Warn().Str("file", k).Msg("JSON policy module conflicts with Rego file, Rego takes precedence")
+				continue
+			}
+			modules[k] = v
+		}
+	}
+
+	log.Info().Int("count", len(modules)).Str("dir", l.policyDir).Msg("Loaded policy modules")
+
+	return modules, nil
+}
+
+// loadRegoFiles loads all .rego files from the policy directory.
+func (l *Loader) loadRegoFiles() (map[string]string, error) {
 	modules := make(map[string]string)
 
 	// Find all .rego files
@@ -54,10 +109,62 @@ func (l *Loader) LoadPolicies() (map[string]string, error) {
 		name := filepath.Base(file)
 		modules[name] = string(content)
 
-		log.Debug().Str("file", name).Int("bytes", len(content)).Msg("Loaded policy module")
+		log.Debug().Str("file", name).Int("bytes", len(content)).Msg("Loaded Rego policy module")
 	}
 
-	log.Info().Int("count", len(modules)).Str("dir", l.policyDir).Msg("Loaded policy modules")
+	return modules, nil
+}
+
+// loadJSONPolicies loads and compiles all .json policy files.
+func (l *Loader) loadJSONPolicies() (map[string]string, error) {
+	modules := make(map[string]string)
+
+	// Check if JSON policy directory exists
+	if _, err := os.Stat(l.jsonPolicyDir); os.IsNotExist(err) {
+		log.Debug().Str("dir", l.jsonPolicyDir).Msg("JSON policy directory does not exist, skipping")
+		return modules, nil
+	}
+
+	pattern := filepath.Join(l.jsonPolicyDir, "*.json")
+	files, err := filepath.Glob(pattern)
+	if err != nil {
+		return nil, fmt.Errorf("failed to glob JSON policy files: %w", err)
+	}
+
+	if len(files) == 0 {
+		log.Debug().Str("dir", l.jsonPolicyDir).Msg("No JSON policy files found")
+		return modules, nil
+	}
+
+	for _, file := range files {
+		content, err := os.ReadFile(filepath.Clean(file))
+		if err != nil {
+			return nil, fmt.Errorf("failed to read %s: %w", file, err)
+		}
+
+		var def compiler.PolicyDefinition
+		if err := json.Unmarshal(content, &def); err != nil {
+			return nil, fmt.Errorf("failed to parse %s: %w", file, err)
+		}
+
+		result, err := l.compiler.Compile(&def)
+		if err != nil {
+			return nil, fmt.Errorf("failed to compile %s: %w", file, err)
+		}
+
+		// Log warnings
+		for _, warn := range result.Warnings {
+			log.Warn().Str("file", file).Str("warning", warn).Msg("JSON policy compilation warning")
+		}
+
+		// Add compiled modules
+		for name, content := range result.Modules {
+			modules[name] = content
+			log.Debug().Str("source", filepath.Base(file)).Str("generated", name).Int("bytes", len(content)).Msg("Compiled JSON policy to Rego")
+		}
+	}
+
+	log.Info().Int("count", len(files)).Str("dir", l.jsonPolicyDir).Msg("Compiled JSON policies")
 
 	return modules, nil
 }

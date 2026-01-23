@@ -101,6 +101,7 @@ type PolicyConfig struct {
 	Enabled         bool             `yaml:"enabled"`
 	Mode            string           `yaml:"mode"` // audit, enforce
 	PolicyDir       string           `yaml:"policy_dir"`
+	JSONPolicyDir   string           `yaml:"json_policy_dir"` // Directory for JSON policy definitions
 	DataFile        string           `yaml:"data_file"`
 	WatchForChanges bool             `yaml:"watch_for_changes"`
 	Environment     string           `yaml:"environment"` // development, staging, production
