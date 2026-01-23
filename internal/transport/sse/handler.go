@@ -1,7 +1,6 @@
 package sse
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -11,11 +10,12 @@ import (
 
 	"github.com/agentfacts/mcp-proxy/internal/config"
 	"github.com/agentfacts/mcp-proxy/internal/session"
+	"github.com/agentfacts/mcp-proxy/internal/transport"
 	"github.com/rs/zerolog/log"
 )
 
-// MessageHandler is the callback for processing incoming MCP messages.
-type MessageHandler func(ctx context.Context, sess *session.Session, message []byte) ([]byte, error)
+// MessageHandler is an alias for the transport.MessageHandler type.
+type MessageHandler = transport.MessageHandler
 
 // Handler handles SSE connections and messages.
 type Handler struct {

@@ -157,13 +157,11 @@ func (v *Validator) validateRateLimitRule(rule *RuleDefinition) error {
 		return fmt.Errorf("'limit' must be a number")
 	}
 
-	// Either agent_id or agent_pattern should be specified
-	_, hasID := rule.Conditions["agent_id"]
-	_, hasPattern := rule.Conditions["agent_pattern"]
-
-	if !hasID && !hasPattern {
-		// Allow default rate limit without agent specification
-	}
+	// Either agent_id or agent_pattern can be specified (both optional for default rate limits)
+	// No validation needed - all combinations are valid:
+	// - No agent specification = default rate limit for all agents
+	// - agent_id = rate limit for specific agent
+	// - agent_pattern = rate limit for agents matching pattern
 
 	if window, ok := rule.Conditions["window"]; ok {
 		w, ok := window.(string)
