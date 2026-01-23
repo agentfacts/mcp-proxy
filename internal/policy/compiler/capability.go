@@ -33,9 +33,9 @@ func CompileCapabilityRules(rules []RuleDefinition, policyName string) (string, 
 
 		// Replace placeholders in message
 		message = replacePlaceholders(message, map[string]string{
-			"agent.id":  "' + input.agent.id + '",
-			"tool":      tool,
-			"required":  capability,
+			"agent.id": "' + input.agent.id + '",
+			"tool":     tool,
+			"required": capability,
 		})
 
 		data := CapabilityData{

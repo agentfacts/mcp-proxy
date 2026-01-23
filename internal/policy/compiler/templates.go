@@ -9,6 +9,7 @@ import (
 // Templates for Rego code generation.
 var templates *template.Template
 
+//nolint:gochecknoinits // template initialization is idiomatic with init
 func init() {
 	templates = template.New("rego").Funcs(template.FuncMap{
 		"quote":      quoteString,

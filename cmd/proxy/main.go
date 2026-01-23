@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"io"
 	"os"
 	"os/signal"
 	"strings"
@@ -17,7 +18,9 @@ import (
 	"github.com/agentfacts/mcp-proxy/internal/policy"
 	"github.com/agentfacts/mcp-proxy/internal/router"
 	"github.com/agentfacts/mcp-proxy/internal/session"
+	"github.com/agentfacts/mcp-proxy/internal/transport"
 	"github.com/agentfacts/mcp-proxy/internal/transport/sse"
+	"github.com/agentfacts/mcp-proxy/internal/transport/stdio"
 	"github.com/agentfacts/mcp-proxy/internal/upstream"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -34,7 +37,7 @@ type Application struct {
 	cfg            *config.Config
 	sessionManager *session.Manager
 	router         *router.Router
-	sseServer      *sse.Server
+	transport      transport.Transport
 	upstreamClient *upstream.Client
 	policyEngine   *policy.Engine
 	auditStore     *audit.Store
@@ -270,11 +273,19 @@ func newApplication(cfg *config.Config) (*Application, error) {
 		}, nil
 	})
 
-	// Initialize SSE server
-	app.sseServer = sse.NewServer(cfg.Server, cfg.Agent, app.sessionManager)
+	// Initialize transport based on config
+	switch cfg.Server.Transport {
+	case "sse":
+		app.transport = sse.NewServer(cfg.Server, cfg.Agent, app.sessionManager)
+	case "stdio":
+		stdioServer := stdio.NewServer(cfg.Agent, app.sessionManager)
+		app.transport = stdioServer
+	default:
+		return nil, fmt.Errorf("unknown transport: %s", cfg.Server.Transport)
+	}
 
 	// Set up message handler to use router
-	app.sseServer.SetMessageHandler(app.handleMessage)
+	app.transport.SetMessageHandler(app.handleMessage)
 
 	// Initialize observability
 	app.metrics = observability.NewMetrics("mcp_proxy")
@@ -347,9 +358,9 @@ func (app *Application) Start(ctx context.Context) error {
 		}
 	}
 
-	// Start SSE server
-	if err := app.sseServer.Start(ctx); err != nil {
-		return fmt.Errorf("failed to start SSE server: %w", err)
+	// Start transport server
+	if err := app.transport.Start(ctx); err != nil {
+		return fmt.Errorf("failed to start %s server: %w", app.transport.Name(), err)
 	}
 
 	// Start observability server
@@ -375,9 +386,9 @@ func (app *Application) Stop(ctx context.Context) error {
 		log.Error().Err(err).Msg("Error stopping observability server")
 	}
 
-	// Stop SSE server first (stop accepting new connections)
-	if err := app.sseServer.Stop(ctx); err != nil {
-		log.Error().Err(err).Msg("Error stopping SSE server")
+	// Stop transport server first (stop accepting new connections)
+	if err := app.transport.Stop(ctx); err != nil {
+		log.Error().Err(err).Msg("Error stopping transport server")
 	}
 
 	// Disconnect from upstream
@@ -417,16 +428,27 @@ func initLogger(cfg config.LoggingConfig) {
 	}
 	zerolog.SetGlobalLevel(level)
 
+	// Determine output destination
+	var output io.Writer = os.Stdout
+	switch cfg.Output {
+	case "stderr":
+		output = os.Stderr
+	case "stdout", "":
+		output = os.Stdout
+		// File output could be added here if needed
+	}
+
 	// Configure output format
 	if cfg.Format == "text" {
 		log.Logger = log.Output(zerolog.ConsoleWriter{
-			Out:        os.Stdout,
+			Out:        output,
 			TimeFormat: time.RFC3339,
 		})
 	} else {
 		// JSON format (default)
 		zerolog.TimeFieldFormat = time.RFC3339Nano
+		log.Logger = log.Output(output)
 	}
 
-	log.Debug().Str("level", cfg.Level).Str("format", cfg.Format).Msg("Logger initialized")
+	log.Debug().Str("level", cfg.Level).Str("format", cfg.Format).Str("output", cfg.Output).Msg("Logger initialized")
 }
